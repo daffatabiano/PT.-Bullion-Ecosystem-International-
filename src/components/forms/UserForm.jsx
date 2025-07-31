@@ -74,7 +74,7 @@ export default function UserForm({ isEdit = false, initialValues = {}, onSuccess
   const file = e.target.files[0];
   if (!file) return;
 
-  const isJpgOrJpeg = file.type === 'image/jpeg' || file.type === 'image/jpg';
+  const isJpgOrJpeg = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png';
   const isLt5MB = file.size / 1024 / 1024 < 5;
 
   if (!isJpgOrJpeg) {
