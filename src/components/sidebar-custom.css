@@ -1,0 +1,9 @@
+
+.custom-sidebar-menu .ant-menu-item-selected {
+  background-color: #FD5725 !important;
+  color: white !important;
+}
+
+.custom-sidebar-menu .ant-menu-item-selected .anticon {
+  color: white !important;
+}
