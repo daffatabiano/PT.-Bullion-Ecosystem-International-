@@ -22,7 +22,7 @@ export default function Login() {
             });
 
             if(res.status === 200) {
-                localStorage.setItem('token', res.data.token);
+                localStorage.setItem('token', res.data.data.token);
                 navigate('/')
             }
         } catch (err) {
@@ -57,7 +57,7 @@ export default function Login() {
                         { type: "email", message: "Format email tidak valid!" },
                         ]}
                     >
-                        <Input />
+                        <Input disabled={loading}/>
                     </Form.Item>
 
                     <Form.Item
@@ -67,11 +67,11 @@ export default function Login() {
                         { min: 8, message: "Password Minimal 8 Karakter !" },
                         ]}
                     >
-                        <Input.Password />
+                        <Input.Password disabled={loading}/>
                     </Form.Item>
 
                     <Form.Item label={null}>
-                        <Button size="w-full" type="button" onClick={handleSubmit} variant="bg-orange-primary text-white hover:bg-orange-primary/90" text="Masuk" />
+                        <Button size="w-full" type="button" disabled={loading} onClick={handleSubmit} variant="bg-orange-primary text-white hover:bg-orange-primary/90" text={loading ? "Loading..." : "Masuk"} />
                     </Form.Item>
                 </Form>
             </div>
