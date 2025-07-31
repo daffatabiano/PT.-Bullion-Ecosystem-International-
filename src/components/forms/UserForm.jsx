@@ -171,7 +171,7 @@ export default function UserForm({ isEdit = false, initialValues = {}, onSuccess
         )}
 
         <Form.Item label="Foto Profil" required help={!selectedFile ? "Foto wajib diunggah" : ""} validateStatus={!selectedFile ? "error" : ""}>
-  <Input type="file" accept=".jpg,.jpeg" onChange={handleFileChange} />
+  <Input type="file" accept=".jpg,.jpeg,.png" onChange={handleFileChange} />
 </Form.Item>
 
         <Form.Item>
