@@ -7,25 +7,29 @@ import dayjs from "dayjs";
 import { showMessage } from "../../utils/showMessage";
 import { convertToBase64 } from "../../utils/baseTo64";
 
-export default function UserForm({ isEdit = false, initialValues = {}, onSuccess }) {
+export default function UserForm({ isEdit = false, initialValues = {}, onSuccess, onFail }) {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [message, contextHolder] = notification.useNotification();
 
   useEffect(() => {
-    if (isEdit && initialValues) {
-      form.setFieldsValue({...initialValues, date_of_birth: dayjs(initialValues.date_of_birth)});
-    } else {
-      form.resetFields();
-    }
-  }, [form, initialValues, isEdit]);
+  if (isEdit && initialValues) {
+    form.setFieldsValue({
+      ...initialValues,
+      date_of_birth: dayjs(initialValues.date_of_birth),
+    });
+  }
+}, [isEdit, initialValues.id]);
+
 
   const handleFinish = async (values) => {
-    const photoFile = values.photo;
+    const base64Photo = selectedFile ? await convertToBase64(selectedFile) : null;
     const payload = {
       ...values,
       password: handleHash(values.password),
       date_of_birth: values.date_of_birth?.format("DD-MM-YYYY"),
-      photo: photoFile ? await convertToBase64(photoFile) : null
+      photo: base64Photo
     };
 
     const formData = new FormData();
@@ -41,40 +45,60 @@ export default function UserForm({ isEdit = false, initialValues = {}, onSuccess
 
     try {
       if (isEdit) {
-        await api.put(`/api/v1/admin/${initialValues.id}/update`, formData);
-        showMessage({
-          type: "success",
-          title: "Success",
-          description: "Data user berhasil disimpan."
-        })
+        const res = await api.put(`/api/v1/admin/${initialValues.id}/update`, formData);
+        if(res.status === 200) {
+          const message = res.data.data.message || "Data berhasil diubah";
+          onSuccess(message);
+        }
       } else {
-        await api.post("/api/v1/auth/register", formData);
-        showMessage({
-          type: "success",
-          title: "Success",
-          description: "Data user berhasil disimpan."
-        })
+        const res = await api.post("/api/v1/auth/register", formData);
+        if(res.status === 200) {
+          const message = res.data.data.message || "Data berhasil diubah";
+          onSuccess(message)
+        }
       }
 
-      if (onSuccess) onSuccess();
     } catch (err) {
-      console.log(err.response);
-      notification.error({
-        message: 'Error',
-        description: err.response.data.message || 'Data user gagal disimpan.'
-      })
+      onFail(err);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleFileChange = (e) => {
+  e.preventDefault();
+  const file = e.target.files[0];
+
+  if (!file) return;
+
+  const isJpgOrJpeg = file.type === 'image/jpeg' || file.type === 'image/jpg';
+  if (!isJpgOrJpeg) {
+    message['error']({
+      title: "Format tidak didukung",
+      description: "Hanya file JPG atau JPEG yang diperbolehkan.",
+    });
+    return;
+  }
+
+  const isLt5MB = file.size / 1024 / 1024 < 5;
+  if (!isLt5MB) {
+    message['error']({
+      title: "Ukuran terlalu besar",
+      description: "Ukuran file harus kurang dari 5MB.",
+    });
+    return;
+  }
+
+  setSelectedFile(file);
+};
+
   return (
     <>
+    {contextHolder}
       <Form
         form={form}
         layout="vertical"
         onFinish={handleFinish}
-        initialValues={initialValues}
       >
         <div className="flex gap-4">
           <Form.Item className="w-1/2" label="Nama Depan" name="first_name" rules={[{ required: true }]}>
@@ -148,11 +172,8 @@ export default function UserForm({ isEdit = false, initialValues = {}, onSuccess
           </div>
         )}
 
-        <Form.Item label="Foto Profil" name="photo" valuePropName="file">
-          <Input type="file" onChange={(e) => {
-    const file = e.target.files[0];
-    form.setFieldsValue({ photo: file });
-  }}/>
+        <Form.Item label="Foto Profil" name="photo" >
+          <Input type="file" accept=".jpg,.jpeg" onChange={handleFileChange}/>
         </Form.Item>
 
         <Form.Item>
