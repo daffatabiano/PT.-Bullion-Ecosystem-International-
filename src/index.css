@@ -3,8 +3,9 @@
 @theme {
   --font-display : 'Montserrat', "sans-serif";
 
-  --blue-primary : #2E74B2;
-  --orange-primary : #FD5725;
+  --color-blue-primary : #2E74B2;
+  --color-orange-primary : #FD5725;
+  --color-orange-50 : #fff3ed;
 
   --container-padding: 2rem;
   --container-padding-md: 2rem;
@@ -62,4 +63,3 @@
     }
   }
 }
-
