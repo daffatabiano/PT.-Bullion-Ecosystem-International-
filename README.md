@@ -106,3 +106,24 @@ npm run dev
 ```env
 VITE_API_BASE_URL=https://api-test.bullionecosystem.com
 ```
+
+> If you have problem with error message : 
+
+```
+  error when starting dev server:
+  TypeError: crypto.hash is not a function
+    at getHash (file:///C:/antohre/PT.-Bullion-Ecosystem-International-/node_modules/vite/dist/node/chunks/dep-BHkUv4Z8.js:2788:21)
+    at getLockfileHash (file:///C:/antohre/PT.-Bullion-Ecosystem-International-/node_modules/vite/dist/node/chunks/dep-BHkUv4Z8.js:11673:9)
+    at getDepHash (file:///C:/antohre/PT.-Bullion-Ecosystem-International-/node_modules/vite/dist/node/chunks/dep-BHkUv4Z8.js:11676:23)
+    at initDepsOptimizerMetadata (file:///C:/antohre/PT.-Bullion-Ecosystem-International-/node_modules/vite/dist/node/chunks/dep-BHkUv4Z8.js:11137:53)
+    at createDepsOptimizer (file:///C:/antohre/PT.-Bullion-Ecosystem-International-/node_modules/vite/dist/node/chunks/dep-BHkUv4Z8.js:34611:17)
+    at new DevEnvironment (file:///C:/antohre/PT.-Bullion-Ecosystem-International-/node_modules/vite/dist/node/chunks/dep-BHkUv4Z8.js:35375:109)
+    at Object.defaultCreateClientDevEnvironment [as createEnvironment] (file:///C:/antohre/PT.-Bullion-Ecosystem-International-/node_modules/vite/dist/node/chunks/dep-BHkUv4Z8.js:35794:9)
+    at _createServer (file:///C:/antohre/PT.-Bullion-Ecosystem-International-/node_modules/vite/dist/node/chunks/dep-BHkUv4Z8.js:28373:132)
+    at async CAC.<anonymous> (file:///C:/antohre/PT.-Bullion-Ecosystem-International-/node_modules/vite/dist/node/cli.js:573:18)
+```
+> Please ensure your Node version ^20+ and please try to run this command : 
+
+```
+  npm install vite@5
+```
