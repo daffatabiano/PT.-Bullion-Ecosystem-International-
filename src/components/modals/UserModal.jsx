@@ -1,7 +1,7 @@
 import { Modal } from "antd";
 import { CloseOutlined } from "@ant-design/icons";
 
-export default function UserDetailModal({ open, onClose, user }) {
+export default function UserDetailModal({ open, onClose, user, onEdit }) {
   return (
     <Modal
       open={open}
@@ -21,12 +21,12 @@ export default function UserDetailModal({ open, onClose, user }) {
 
         <h2 className="text-lg font-bold mb-6">Lihat User</h2>
 
-          <div className="mb-4">
+          <div className="my-8  ">
               <p className="font-semibold text-center">Foto Profil</p>
               <img
-                src={user?.photo || "/default-avatar.png"}
+                src={`data:image/png;base64,${user?.photo}`}
                 alt="Profile"
-                className="rounded-full w-20 h-20 mt-1 mx-auto object-cover border border-gray-300"
+                className="rounded-full w-24 h-24 mt-1 mx-auto object-cover border border-gray-300"
               />
             </div>
 
@@ -34,7 +34,7 @@ export default function UserDetailModal({ open, onClose, user }) {
           <div className="space-y-3 text-sm">
             <div>
               <div className="font-semibold">Nama Depan</div>
-              <div>{user?.firstName}</div>
+              <div>{user?.first_name}</div>
             </div>
             <div>
               <div className="font-semibold">Jenis Kelamin</div>
@@ -58,17 +58,20 @@ export default function UserDetailModal({ open, onClose, user }) {
           
             <div>
               <div className="font-semibold">Nama Belakang</div>
-              <div>{user?.lastName}</div>
+              <div>{user?.last_name}</div>
             </div>
             <div>
               <div className="font-semibold">Tanggal Lahir</div>
-              <div>{user?.birthDate}</div>
+              <div>{user?.date_of_birth?.split("T")[0]}</div>
             </div>
           </div>
         </div>
 
         <button
-          onClick={() => console.log("edit user")}
+          onClick={() => {
+            onEdit(user)
+            onClose()
+          }}
           className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-md"
         >
           Edit
