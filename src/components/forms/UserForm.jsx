@@ -1,17 +1,15 @@
-import { DatePicker, Form, Input, notification, Select } from "antd";
+import { DatePicker, Form, Input, Select } from "antd";
 import { useEffect, useState } from "react";
 import Button from "../Button";
 import api from "../../libs/axios";
 import { handleHash } from "../../utils/hashPassword";
 import dayjs from "dayjs";
 import { showMessage } from "../../utils/showMessage";
-import { convertToBase64 } from "../../utils/baseTo64";
 
 export default function UserForm({ isEdit = false, initialValues = {}, onSuccess, onFail }) {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [message, contextHolder] = notification.useNotification();
 
   useEffect(() => {
   if (isEdit && initialValues) {
@@ -20,81 +18,81 @@ export default function UserForm({ isEdit = false, initialValues = {}, onSuccess
       date_of_birth: dayjs(initialValues.date_of_birth),
     });
   }
+
+   if (initialValues.photo) {
+      setSelectedFile(initialValues.photo);
+    }
 }, [isEdit, initialValues.id]);
 
 
   const handleFinish = async (values) => {
-    const base64Photo = selectedFile ? await convertToBase64(selectedFile) : null;
-    const payload = {
-      ...values,
-      password: handleHash(values.password),
-      date_of_birth: values.date_of_birth?.format("DD-MM-YYYY"),
-      photo: base64Photo
-    };
-
-    const formData = new FormData();
-    for (const key in payload) {
-      if (key === "photo" && payload[key]?.file) {
-        formData.append("photo", payload[key].file.originFileObj);
-      } else {
-        formData.append(key, payload[key]);
-      }
-    }
-
-    setLoading(true);
-
-    try {
-      if (isEdit) {
-        const res = await api.put(`/api/v1/admin/${initialValues.id}/update`, formData);
-        if(res.status === 200) {
-          const message = res.data.data.message || "Data berhasil diubah";
-          onSuccess(message);
-        }
-      } else {
-        const res = await api.post("/api/v1/auth/register", formData);
-        if(res.status === 200) {
-          const message = res.data.data.message || "Data berhasil diubah";
-          onSuccess(message)
-        }
-      }
-
-    } catch (err) {
-      onFail(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleFileChange = (e) => {
-  e.preventDefault();
-  const file = e.target.files[0];
-
-  if (!file) return;
-
-  const isJpgOrJpeg = file.type === 'image/jpeg' || file.type === 'image/jpg';
-  if (!isJpgOrJpeg) {
-    message['error']({
-      title: "Format tidak didukung",
-      description: "Hanya file JPG atau JPEG yang diperbolehkan.",
+  if (!selectedFile) {
+    showMessage({
+      type: "error",
+      title: "Foto Profil dibutuhkan",
+      description: "Silakan unggah foto profil terlebih dahulu."
     });
     return;
   }
 
+  const formData = new FormData();
+  formData.append("first_name", values.first_name);
+  formData.append("last_name", values.last_name);
+  formData.append("gender", values.gender);
+  formData.append("date_of_birth", values.date_of_birth.format("DD-MM-YYYY"));
+  formData.append("email", values.email);
+  formData.append("phone", values.phone);
+  formData.append("address", values.address);
+
+  if (!isEdit) {
+    formData.append("password", handleHash(values.password));
+  }
+
+  formData.append("photo", selectedFile);
+
+  setLoading(true);
+  try {
+    let res;
+    if (isEdit) {
+      res = await api.put(`/api/v1/admin/${initialValues.id}/update`, formData);
+    } else {
+      res = await api.post("/api/v1/auth/register", formData);
+    }
+
+    if (res.status === 200) {
+      const message = res.data.data.message || "Data berhasil disimpan";
+      onSuccess(message);
+    }
+  } catch (err) {
+    onFail(err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  const handleFileChange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const isJpgOrJpeg = file.type === 'image/jpeg' || file.type === 'image/jpg';
   const isLt5MB = file.size / 1024 / 1024 < 5;
+
+  if (!isJpgOrJpeg) {
+    showMessage({ type: "error", title: "Format tidak didukung", description: "Hanya JPG/JPEG yang diperbolehkan." });
+    return;
+  }
+
   if (!isLt5MB) {
-    message['error']({
-      title: "Ukuran terlalu besar",
-      description: "Ukuran file harus kurang dari 5MB.",
-    });
+    showMessage({ type: "error", title: "Ukuran terlalu besar", description: "Maksimal 5MB." });
     return;
   }
 
   setSelectedFile(file);
 };
 
+
   return (
     <>
-    {contextHolder}
       <Form
         form={form}
         layout="vertical"
@@ -172,9 +170,9 @@ export default function UserForm({ isEdit = false, initialValues = {}, onSuccess
           </div>
         )}
 
-        <Form.Item label="Foto Profil" name="photo" >
-          <Input type="file" accept=".jpg,.jpeg" onChange={handleFileChange}/>
-        </Form.Item>
+        <Form.Item label="Foto Profil" required help={!selectedFile ? "Foto wajib diunggah" : ""} validateStatus={!selectedFile ? "error" : ""}>
+  <Input type="file" accept=".jpg,.jpeg" onChange={handleFileChange} />
+</Form.Item>
 
         <Form.Item>
           <Button

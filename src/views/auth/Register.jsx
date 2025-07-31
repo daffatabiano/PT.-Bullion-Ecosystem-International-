@@ -17,7 +17,7 @@ export default function Register() {
           message['success']({ message: 'Register Success' });
           }} 
           onFail={(e) => {
-            const error = e.response?.data?.message || e.message || 'Register Failed';
+            const error = e.response?.data?.err_message || e.message || 'Register Failed';
             message['error']({ message: 'Register Failed', description: error });
           }}
           />
